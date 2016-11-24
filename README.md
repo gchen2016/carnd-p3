@@ -1,4 +1,12 @@
 # carnd-p3
+Training an testing the driving in simulator.
+
+## File Structure
+ * model.py - The script to create and train the model.
+ * drive.py - The script to drive the car.
+ * model.json - The model architecture.
+ * model.h5 - The model weights.
+ * READM.md - This file.
 
 
 ## References
