@@ -8,7 +8,9 @@ Training an testing the driving in simulator.
  * model.h5 - The model weights.
  * READM.md - This file.
 
-
+## Run Server
+ * python drive.py model.json
+ 
 ## References
 * http://www.pyimagesearch.com/2016/08/01/lenet-convolutional-neural-network-in-python/
 * https://github.com/fchollet/keras/blob/master/examples/mnist_mlp.py
