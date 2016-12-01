@@ -22,7 +22,23 @@ The structure is based of the CNN architecture in Nvidia's End to End Learning f
 
 
 ## Training Approach
-Using the Nvidia's CNN architecture to train the data saved in training mode from the simulator. The data have xx images.
+Using the Nvidia's CNN architecture to train the data saved in training mode from the simulator.
+
+The saved file structure is:
+'''
+ driving_log.cvs
+ IMG/
+   center_yyyy_mm_dd_hh_mm_ss_xxx.jpg
+'''
+
+The driving_log.cvs format is:
+'''
+path_to_center.jpg, path_to_left.jpg, path_to_right_img.jpg, center_angle, left_angle, right_angle, a number.
+'''
+
+* load center images into [none, 320, 160, 30] numpy array
+* load center angle inot [none] numpy array
+* Use keras's ImageDataGenerator to process image like nomalization on the fly. 
 
 Then...
 
