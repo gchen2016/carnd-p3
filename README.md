@@ -54,4 +54,7 @@ Then...
 * https://keras.io/
   * https://keras.io/getting-started/faq/
   * https://keras.io/callbacks/
+
+#### Image Process and Augmentation 
+* http://machinelearningmastery.com/image-augmentation-deep-learning-keras/
 * https://blog.keras.io/building-powerful-image-classification-models-using-very-little-data.html
