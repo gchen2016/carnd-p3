@@ -39,7 +39,7 @@ The saved file structure is:
 
 The driving_log.cvs format is:
 '''
-path_to_center.jpg, path_to_left.jpg, path_to_right_img.jpg, center_angle, left_angle, right_angle, a number.
+Center Image, Left Image, Right Image, Steering Angle, Throttle, Break, Speed.
 '''
 
 * load center images into [none, 320, 160, 30] numpy array
