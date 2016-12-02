@@ -59,3 +59,7 @@ Then...
 #### Image Process and Augmentation 
 * http://machinelearningmastery.com/image-augmentation-deep-learning-keras/
 * https://blog.keras.io/building-powerful-image-classification-models-using-very-little-data.html
+
+## Trouble Shooting
+* https://github.com/aymericdamien/TensorFlow-Examples/issues/38
+  * InternalError: Dst tensor is not initialized
