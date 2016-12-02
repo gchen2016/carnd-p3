@@ -4,12 +4,12 @@
 import csv
 import os
 
-import matplotlib.pyplot as plot
+import matplotlib.pyplot as pyplot
 import numpy as np
 from keras.layers import Convolution2D, MaxPooling2D
 from keras.layers import Dense, Dropout, Activation, Flatten
 from keras.models import Sequential
-from keras.preprocessing.image import load_img, img_to_array
+from keras.preprocessing.image import load_img, img_to_array, ImageDataGenerator, array_to_img
 
 
 # from scipy.misc import toimage
@@ -17,33 +17,51 @@ from keras.preprocessing.image import load_img, img_to_array
 
 def load_data(dir='data/sample/'):
     # print(rcsetup.all_backends)
-    plot.ion()
+    pyplot.ion()
     cvs_file_name = dir + '/driving_log.csv'
     img_dir = 'IMG/'
     img_width = 160;
     img_height = 320;
 
     data_size = sum(1 for line in open(cvs_file_name))
-    X_train = np.empty((data_size, img_width, img_height, 3))
-    y = np.empty((data_size))
+    X_train = np.zeros((data_size, img_width, img_height, 3))
+    y = np.zeros(data_size)
 
     with open(cvs_file_name, mode='r') as csvfile:
         readcsv = csv.reader(csvfile, delimiter=',')
-        for (line, i) in zip(readcsv, range(10)):
+        for (line, i) in zip(readcsv, range(data_size)):
             # center image file name
             img_file = dir + img_dir + os.path.basename(line[0])
-            print(img_file, line[5])
+            # print(img_file, line[3])
             img = load_img(img_file)
             X_train[i, :, :, :] = img_to_array(img)
             # center image driving angle
             y[i] = float(line[3])
-            plot.imshow(img)
-            plot.show
-
-    print(X_train.shape, y.shape)
+            # Show the images
+            # if i < 8:
+            #  pyplot.subplot(331 + i)
+            #  pyplot.imshow(img)
+    # pyplot.subplot(339)
+    # pyplot.plot(y)
+    # pyplot.show()
+    # print(X_train.shape, y.shape)
     return X_train, y
 
 
+def init_data_generator(data):
+    # REF: https://keras.io/preprocessing/image/
+    datagen = ImageDataGenerator(
+        samplewise_center=True,  # Set each sample mean to 0.
+        samplewise_std_normalization=True  # Divide each input by its std.
+    )
+    datagen.fit(data)
+    return datagen
+
+
+# def getNextBatch(datagenerator, data, y_data, batch_size=16):
+#    # return batch_X, batch_y
+#    batch_X, batch_y = datagenerator.flow(data, y_data, batch_size)
+#    return batch_X, batch_y
 
 def to_categorical(y, nb_classes=None):
     '''Convert class vector (integers from 0 to nb_classes) to binary class matrix, for use with categorical_crossentropy.
@@ -144,9 +162,36 @@ history = model.fit(X_train, y_train,
 # REF: https://keras.io/callbacks/
 # loss, accuracy = model.evaluate(X_val, y_val)
 
+def test_norm_data(X, y):
+    pyplot.axis("off")
+    pyplot.subplot(521)
+    pyplot.imshow(array_to_img(X[0]))
+    pyplot.subplot(522)
+    pyplot.hist(X[0][0])
+    datagen = init_data_generator(X)
+    # data_iter = datagen.flow(X, y, batch_size=3, save_to_dir="cache")
+    b_size = 3
+    data_iter = datagen.flow(X, y, batch_size=b_size)
+    c = 0
+    for i in data_iter:
+        img_a = i[0][c]
+        assert img_a.shape[-1] == 3, "Not 3 channels"
+        print(img_a.shape)
+        # print (img_a)
+
+        pyplot.subplot(523 + c * 2)
+        pyplot.imshow(array_to_img(img_a))
+        pyplot.subplot(524 + c * 2)
+        pyplot.hist(img_a[1])
+        c += 1
+        if c >= b_size:
+            break
+    pyplot.show()
+
 def main():
     X_train, y = load_data()
-    print(X_train[1], y)
+    # print(X_train[1], y)
+    test_norm_data(X_train, y)
     input("Press a key to continue...")
 
 
