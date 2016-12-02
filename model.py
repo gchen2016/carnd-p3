@@ -1,4 +1,3 @@
-
 # Train a deep neural network to drive a car like myself
 
 import csv
@@ -6,8 +5,8 @@ import os
 
 import matplotlib.pyplot as pyplot
 import numpy as np
-from keras.layers import Convolution2D, MaxPooling2D
-from keras.layers import Dense, Dropout, Activation, Flatten
+from keras.layers import Convolution2D
+from keras.layers import Dense, Activation, Flatten
 from keras.models import Sequential
 from keras.preprocessing.image import load_img, img_to_array, ImageDataGenerator, array_to_img
 
@@ -15,10 +14,10 @@ from keras.preprocessing.image import load_img, img_to_array, ImageDataGenerator
 # from scipy.misc import toimage
 
 
-def load_data(dir='data/sample/'):
+def load_data(data_dir='data/sample/'):
     # print(rcsetup.all_backends)
     pyplot.ion()
-    cvs_file_name = dir + '/driving_log.csv'
+    cvs_file_name = data_dir + '/driving_log.csv'
     img_dir = 'IMG/'
     img_width = 160;
     img_height = 320;
@@ -31,7 +30,7 @@ def load_data(dir='data/sample/'):
         readcsv = csv.reader(csvfile, delimiter=',')
         for (line, i) in zip(readcsv, range(data_size)):
             # center image file name
-            img_file = dir + img_dir + os.path.basename(line[0])
+            img_file = data_dir + img_dir + os.path.basename(line[0])
             # print(img_file, line[3])
             img = load_img(img_file)
             X_train[i, :, :, :] = img_to_array(img)
@@ -72,7 +71,7 @@ def to_categorical(y, nb_classes=None):
         A binary matrix representation of the input.
     '''
     if not nb_classes:
-        nb_classes = np.max(y)+1
+        nb_classes = np.max(y) + 1
     Y = np.zeros((len(y), nb_classes))
     for i in range(len(y)):
         Y[i, y[i]] = 1.
@@ -96,46 +95,70 @@ def init_model():
     Initialize the model for training
     :return: the initialized and defined model
     '''
-    input_shape = (3, 256, 256)
-    border_mode = 'valid'  # or  'same'
-    nb_filters = 64  # num of output filters
-    kernel_size = [5, 5]  # Kernel size
-    subsample = (1, 1)  # strides
+    input_shape = (320, 160, 3)
+    border_mode = 'valid'  # 'valid', 'same'
+    pool_size = (5, 5)
 
+    ## CNN 1
     model = Sequential()
-    model.add(Convolution2D(nb_filters, kernel_size[0],
-                            kernel_size[1],
-                            border_mode='valid',
-                            subsample=subsample,
-                            input_shape=input_shape))
+    model.add(Convolution2D(
+        24, 5, 5,
+        border_mode=border_mode,
+        subsample=(1, 1),
+        input_shape=input_shape))
     model.add(Activation('relu'))
-    model.add(MaxPooling2D(pool_size=pool_size))
-    model.add(Flatten())
+    ### model.add(MaxPooling2D(pool_size=pool_size))
 
-    model.add(Dense(128, input_shape=(32 * 32 * 3,), name="hidden1"))
+    ## CNN 2
+    model.add(Convolution2D(
+        36, 5, 5,
+        border_mode=border_mode,
+        subsample=(1, 1)))
     model.add(Activation('relu'))
-    model.add(Dropout(0.2))
-    model.add(Dense(128, name="hidden2"))
+    ### model.add(MaxPooling2D(pool_size=pool_size))
+
+    ## CNN 3
+    model.add(Convolution2D(
+        48, 5, 5,
+        border_mode=border_mode,
+        subsample=(1, 1)))
+
     model.add(Activation('relu'))
-    model.add(Dropout(0.2))
-    model.add(Dense(43, name="output"))
-    model.add(Activation('softmax'))
+    ### model.add(MaxPooling2D(pool_size=pool_size))
+
+    ## CNN 4
+    model.add(Convolution2D(
+        64, 3, 3,
+        border_mode=border_mode,
+        subsample=(1, 1)))
+    model.add(Activation('relu'))
+    ### model.add(MaxPooling2D(pool_size=pool_size))
+
+    ## CNN 5
+    model.add(Convolution2D(
+        64, 3, 3,
+        border_mode=border_mode,
+        subsample=(1, 1)))
+    model.add(Activation('relu'))
+    ### model.add(MaxPooling2D(pool_size=pool_size))
+
+    model.add(Flatten())
+    ### Fully Connected
+    model.add(Dense(1164, name="hidden1"))
+    model.add(Activation('relu'))
+    # model.add(Dropout(0.2))
+    model.add(Dense(150, name="hidden2"))
+    model.add(Activation('relu'))
+    # model.add(Dropout(0.2))
+    model.add(Dense(10, name="hidden3"))
+    model.add(Activation('relu'))
+    model.add(Dense(1, name="output"))
 
     model.compile(loss='categorical_crossentropy',
                   optimizer='adam',
                   metrics=['acc'])
 
-    history = model.fit(X_train, y_train,
-                        batch_size=126,
-                        nb_epoch=3,
-                        verbose=1,
-                        validation_data=(X_test, y_test))
-    model.add(Dense(128, name="hidden2"))
-
     return model
-
-    # with open('data/test.p', mode='rb') as f:
-    test = pickle.load(f)
 
 
 # X_test = test['features']
@@ -184,14 +207,41 @@ def test_norm_data(X, y):
         pyplot.subplot(524 + c * 2)
         pyplot.hist(img_a[1])
         c += 1
-        if c >= b_size:
+        if c >= b_size - 1:
             break
+
+    # show y data
+    pyplot.subplot(527)
+    pyplot.plot(y)
+    pyplot.subplot(528)
+    pyplot.hist(y)
     pyplot.show()
 
+def train(model, data_generator, valid_generator, y_data, y_valid):
+    """history = model.fit(X, y,
+                        batch_size=126,
+                        nb_epoch=3,
+                        verbose=1,
+                        validation_data=(X_valid, y_valid))
+                        """
+    model.fit_generator(
+        data_generator,
+        samples_per_epoch=100,
+        nb_epoch=2,
+        # validation_data=valid_generator,
+        nb_val_samples=50)
+
+
 def main():
-    X_train, y = load_data()
+    X_train, y_train = load_data(data_dir="data/train1/")
+    X_valid, y_valid = load_data(data_dir="data/train2/")
     # print(X_train[1], y)
-    test_norm_data(X_train, y)
+    # test_norm_data(X_train, y)
+    model = init_model()
+    print(model.to_json())
+    data_gen = init_data_generator(X_train)
+    valid_gen = init_data_generator(X_valid)
+    train(model, data_gen, valid_gen, y_train, y_valid)
     input("Press a key to continue...")
 
 
