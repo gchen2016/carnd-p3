@@ -20,6 +20,12 @@ Training an testing the driving in simulator.
 The structure is based of the CNN architecture in Nvidia's End to End Learning for Self-Driving Cars parper (http://images.nvidia.com/content/tegra/automotive/images/2016/solutions/pdf/end-to-end-dl-using-px.pdf)
 
 
+## Envirnment
+* Ubuntu 16.04, Kerars, TensorFlow backend
+* CPU: Intel i7 6850k
+* MEM: 32 G
+* GPU: Titian X (Pascal) 12G Mem
+* SSD: 0.5 + 1 Tb
 
 ## Training Approach
 Using the Nvidia's CNN architecture to train the data saved in training mode from the simulator.
