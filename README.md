@@ -12,8 +12,20 @@ Training an testing the driving in simulator.
  * model.json - The model architecture.
  * model.h5 - The model weights.
  * READM.md - This file.
+ * The saved file structure from simulator trainning mode is:
+'''
+ driving_log.cvs
+ IMG/
+   center_yyyy_mm_dd_hh_mm_ss_xxx.jpg
+'''
+
+ * The driving_log.cvs format is:
+'''
+Center Image, Left Image, Right Image, Steering Angle, Throttle, Break, Speed.
+'''
 
 ## Run Server
+ * First run the simulator in the auto mode.
  * python drive.py model.json
 
 ## Structure of CNN
@@ -28,19 +40,14 @@ The structure is based of the CNN architecture in Nvidia's End to End Learning f
 * SSD: 0.5 + 1 TB
 
 ## Training Approach
-Using the Nvidia's CNN architecture to train the data saved in training mode from the simulator.
+### Apporach 1
+#### Using the Nvidia's CNN architecture to train the data saved in training mode from the simulator.
+Since I am using the GPU, the memory limitation is 12G. The Nvidia's network is too big to fit in. I will have to reduce the size of the network to fit in the GPU memory. I also tried resize the input image size to 84x42, and the origianl network can fit in. But the size is not usable when doing the real testing when connect to the simulator, which has size of 32x160.
 
-The saved file structure is:
-'''
- driving_log.cvs
- IMG/
-   center_yyyy_mm_dd_hh_mm_ss_xxx.jpg
-'''
+### Approach 2
+#### Reduce the network architecture by removing 1 FC layer, 2 CNN layer, adjusting size on all remaining layer
 
-The driving_log.cvs format is:
-'''
-Center Image, Left Image, Right Image, Steering Angle, Throttle, Break, Speed.
-'''
+
 
 * load center images into [none, 320, 160, 30] numpy array
 * load center angle inot [none] numpy array
