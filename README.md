@@ -46,7 +46,7 @@ path_to_center.jpg, path_to_left.jpg, path_to_right_img.jpg, center_angle, left_
 * load center angle inot [none] numpy array
 * Use keras's ImageDataGenerator to process image like nomalization on the fly. 
 
-Then...
+* Image isze 320x160 exhausts the GPU memery. Had to resize to 84x32
 
 
 ## References
