@@ -5,25 +5,26 @@ import os
 
 import matplotlib.pyplot as pyplot
 import numpy as np
+import scipy
 from keras.layers import Convolution2D
 from keras.layers import Dense, Activation, Flatten
 from keras.models import Sequential
 from keras.preprocessing.image import load_img, img_to_array, ImageDataGenerator, array_to_img
 
-
-# from scipy.misc import toimage
-
+### Golbal var
+MODLE_IMG_WIDTH = 86
+MODLE_IMG_HEIGHT = 43
 
 def load_data(data_dir='data/sample/'):
     # print(rcsetup.all_backends)
     pyplot.ion()
     cvs_file_name = data_dir + '/driving_log.csv'
     img_dir = 'IMG/'
-    img_width = 160;
-    img_height = 320;
+    img_width = MODLE_IMG_WIDTH;
+    img_height = MODLE_IMG_HEIGHT;
 
     data_size = sum(1 for line in open(cvs_file_name))
-    X_train = np.zeros((data_size, img_width, img_height, 3))
+    X = np.zeros((data_size, img_height, img_width, 3))
     y = np.zeros(data_size)
 
     with open(cvs_file_name, mode='r') as csvfile:
@@ -32,8 +33,9 @@ def load_data(data_dir='data/sample/'):
             # center image file name
             img_file = data_dir + img_dir + os.path.basename(line[0])
             # print(img_file, line[3])
-            img = load_img(img_file)
-            X_train[i, :, :, :] = img_to_array(img)
+            img = load_img(img_file)  # orginal size is 320 x 160
+            img = scipy.misc.imresize(img, (img_height, img_width))
+            X[i, :, :, :] = img_to_array(img)
             # center image driving angle
             y[i] = float(line[3])
             # Show the images
@@ -44,7 +46,7 @@ def load_data(data_dir='data/sample/'):
     # pyplot.plot(y)
     # pyplot.show()
     # print(X_train.shape, y.shape)
-    return X_train, y
+    return X, y
 
 
 def init_data_generator(data):
@@ -55,28 +57,6 @@ def init_data_generator(data):
     )
     datagen.fit(data)
     return datagen
-
-
-# def getNextBatch(datagenerator, data, y_data, batch_size=16):
-#    # return batch_X, batch_y
-#    batch_X, batch_y = datagenerator.flow(data, y_data, batch_size)
-#    return batch_X, batch_y
-
-def to_categorical(y, nb_classes=None):
-    '''Convert class vector (integers from 0 to nb_classes) to binary class matrix, for use with categorical_crossentropy.
-    # Arguments
-        y: class vector to be converted into a matrix
-        nb_classes: total number of classes
-    # Returns
-        A binary matrix representation of the input.
-    '''
-    if not nb_classes:
-        nb_classes = np.max(y) + 1
-    Y = np.zeros((len(y), nb_classes))
-    for i in range(len(y)):
-        Y[i, y[i]] = 1.
-    return Y
-
 
 def save_model(model):
     # REF: https://keras.io/getting-started/faq/
@@ -95,7 +75,8 @@ def init_model():
     Initialize the model for training
     :return: the initialized and defined model
     '''
-    input_shape = (320, 160, 3)
+    # input_shape = (160, 320, 3)
+    input_shape = (MODLE_IMG_HEIGHT, MODLE_IMG_WIDTH, 3)
     border_mode = 'valid'  # 'valid', 'same'
     pool_size = (5, 5)
 
@@ -142,10 +123,13 @@ def init_model():
     model.add(Activation('relu'))
     ### model.add(MaxPooling2D(pool_size=pool_size))
 
+
     model.add(Flatten())
+
     ### Fully Connected
     model.add(Dense(1164, name="hidden1"))
     model.add(Activation('relu'))
+
     # model.add(Dropout(0.2))
     model.add(Dense(150, name="hidden2"))
     model.add(Activation('relu'))
@@ -154,7 +138,7 @@ def init_model():
     model.add(Activation('relu'))
     model.add(Dense(1, name="output"))
 
-    model.compile(loss='categorical_crossentropy',
+    model.compile(loss='mean_squared_error',
                   optimizer='adam',
                   metrics=['acc'])
 
@@ -226,22 +210,28 @@ def train(model, data_generator, valid_generator, y_data, y_valid):
                         """
     model.fit_generator(
         data_generator,
-        samples_per_epoch=100,
-        nb_epoch=2,
+        samples_per_epoch=10,
+        nb_epoch=100,
         # validation_data=valid_generator,
-        nb_val_samples=50)
-
+        # nb_val_samples=50)
+    )
 
 def main():
     X_train, y_train = load_data(data_dir="data/train1/")
     X_valid, y_valid = load_data(data_dir="data/train2/")
     # print(X_train[1], y)
-    # test_norm_data(X_train, y)
+    test_norm_data(X_train, y_train)
     model = init_model()
     print(model.to_json())
     data_gen = init_data_generator(X_train)
-    valid_gen = init_data_generator(X_valid)
-    train(model, data_gen, valid_gen, y_train, y_valid)
+    # valid_gen = init_data_generator(X_valid)
+    # train(model, data_gen, valid_gen, y_valid, y_valid)
+    train(model,
+          data_gen.flow(X_train, y_train, batch_size=32),
+          None,
+          y_train,
+          y_valid)
+
     input("Press a key to continue...")
 
 
