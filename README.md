@@ -25,7 +25,7 @@ The structure is based of the CNN architecture in Nvidia's End to End Learning f
 * CPU: Intel i7 6850k
 * MEM: 32 G
 * GPU: Titian X (Pascal) 12G Mem
-* SSD: 0.5 + 1 Tb
+* SSD: 0.5 + 1 TB
 
 ## Training Approach
 Using the Nvidia's CNN architecture to train the data saved in training mode from the simulator.
