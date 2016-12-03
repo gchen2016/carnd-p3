@@ -13,16 +13,16 @@ Training an testing the driving in simulator.
  * model.h5 - The model weights.
  * READM.md - This file.
  * The saved file structure from simulator trainning mode is:
-'''
+```
  driving_log.cvs
  IMG/
    center_yyyy_mm_dd_hh_mm_ss_xxx.jpg
-'''
+```
 
  * The driving_log.cvs format is:
-'''
+```
 Center Image, Left Image, Right Image, Steering Angle, Throttle, Break, Speed.
-'''
+```
 
 ## Run Server
  * First run the simulator in the auto mode.
@@ -72,6 +72,7 @@ Since I am using the GPU, the memory limitation is 12G. The Nvidia's network is 
 #### Image Process and Augmentation 
 * http://machinelearningmastery.com/image-augmentation-deep-learning-keras/
 * https://blog.keras.io/building-powerful-image-classification-models-using-very-little-data.html
+* https://github.com/fchollet/keras/blob/master/keras/preprocessing/image.py
 
 ## Trouble Shooting
 * https://github.com/aymericdamien/TensorFlow-Examples/issues/38
