@@ -122,6 +122,7 @@ The current input data is a recording of roughly one lap of the trail using keyb
 * https://github.com/SullyChen/Nvidia-Autopilot-TensorFlow
 * http://images.nvidia.com/content/tegra/automotive/images/2016/solutions/pdf/end-to-end-dl-using-px.pdf
 * https://yanpanlau.github.io/2016/07/10/FlappyBird-Keras.html
+* https://github.com/jacobgil/keras-steering-angle-visualizations
 
 ### Keras
 * https://keras.io/
