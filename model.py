@@ -3,18 +3,18 @@
 import json
 import os
 
-from keras import initializations
-from keras.layers import Convolution2D
+import keras
+from keras.layers import Convolution2D, MaxPooling2D, Dropout
 from keras.layers import Dense, Activation, Flatten
 from keras.models import Sequential
 from keras.optimizers import Adam
 
+from gen_dir_data import ImageDataGen
 from p3_util import load_data, \
     MODLE_IMG_WIDTH, \
     MODLE_IMG_HEIGHT, \
     init_data_generator, \
-    truncated_normal, \
-    test_norm_data
+    truncated_normal
 
 
 def save_model(model):
@@ -107,28 +107,105 @@ def init_model():
     model.add(Dense(1, init=truncated_normal, name="output",
                     activation='tanh'))
 
-    adamOpt = Adam(lr=1e-5)
+    adamOpt = Adam(lr=0.00001)
     model.compile(loss='mean_squared_error',
                   optimizer=adamOpt,
                   metrics=['acc'])
 
-    setattr(initializations, 'truncated_normal', truncated_normal)
+    ### setattr(initializations, 'truncated_normal', truncated_normal)
 
     return model
 
 
-# X_test = test['features']
-# y_test = test['labels']
-# X_test = X_test.astype('float32')
-# X_test /= 255
-# X_test -= 0.5
-# Y_test = np_utils.to_categorical(y_test, 43)
+def init_model1():
+    '''
+    Initialize the model for training
+    :return: the initialized and defined model
+    '''
+    # input_shape = (160, 320, 3)
+    input_shape = (MODLE_IMG_HEIGHT, MODLE_IMG_WIDTH, 3)
+    border_mode = 'valid'  # 'valid', 'same'
+    # pool_size = (5, 5)
+    pool_size = (3, 3)
 
-# model.evaluate(X_test, Y_test)
+    print("init_model1")
 
-# model.compile(loss='categorical_crossentropy',
-#              optimizer='adam',
-#              metrics=['accuracy'])
+    ## CNN 1
+    model = Sequential()
+    model.add(Convolution2D(
+        12, 5, 5,
+        border_mode=border_mode,
+        subsample=(2, 2),
+        input_shape=input_shape,
+        init='normal'))
+    model.add(Activation('relu'))
+    # model.add(MaxPooling2D(pool_size=pool_size))
+
+    ## CNN 2
+    model.add(Convolution2D(
+        24, 5, 5,
+        border_mode=border_mode,
+        subsample=(2, 2),
+        # init=lambda shape, name: normal(shape, scale=0.01, name=name)),
+        init='normal'))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=pool_size))
+
+    ## CNN 3
+    model.add(Convolution2D(
+        36, 3, 3,
+        border_mode=border_mode,
+        subsample=(1, 1),
+        init='normal'))
+
+    model.add(Activation('relu'))
+    ## model.add(MaxPooling2D(pool_size=pool_size))
+
+    ## CNN 4
+    model.add(Convolution2D(
+        64, 3, 3,
+        border_mode=border_mode,
+        subsample=(1, 1),
+        init='normal'))
+    model.add(Activation('relu'))
+    ## model.add(MaxPooling2D(pool_size=pool_size))
+
+    """
+    ## CNN 5
+    model.add(Convolution2D(
+        64, 3, 3,
+        border_mode=border_mode,
+        subsample=(1, 1),
+        init='normal'))
+    model.add(Activation('relu'))
+    ### model.add(MaxPooling2D(pool_size=pool_size))
+    """
+
+    model.add(Flatten())
+
+    # TODO: Size limitation
+    """
+    ### Fully Connected
+    model.add(Dense(1164, name="hidden1"))
+    model.add(Activation('relu'))
+    """
+    model.add(Dropout(0.5))
+    model.add(Dense(600, init='normal', name="hidden2"))
+    model.add(Activation('relu'))
+    model.add(Dropout(0.5))
+    model.add(Dense(20, init='normal', name="hidden3"))
+    model.add(Activation('relu'))
+    model.add(Dense(1, init='normal', name="output",
+                    activation='tanh'))
+
+    adamOpt = Adam(lr=0.001)
+    model.compile(loss='mean_squared_error',
+                  optimizer=adamOpt,
+                  metrics=['acc'])
+
+    return model
+
+
 """
 history = model.fit(X_train, y_train,
                     batch_size=200,
@@ -203,13 +280,62 @@ def train2():
     save_model(model)
 
 
+def train3():
+    # using the new data generator.
+    nb_epoch = 1
+    gdata = ImageDataGen(
+        data_dirs=[
+            'data/record/slow1/',
+            'data/record/gtrain1/',
+            'data/record/gtrain2/',
+            # 'data/record/gtrain3/',
+            'data/train1/',
+            'data/train2/',
+            'data/train3/'],
+        center_image_only=False,
+        # angle_adjust= 0.2,
+        train_size=.8,
+        shuffle=True)
+    train_num, valid_num = gdata.get_data_sizes()
+    print("DataGen train size={0:d} valid size={1:d}".format(
+        train_num, valid_num))
+    batch_size = 200
+    epoch_size = train_num
+    ## model = init_model()
+    model = init_model1()
+    # os.system("nvidia-smi")
+    # model.summary()
+    data_gen = gdata.gen_data_from_dir(batch_size=batch_size)
+    valid_data = gdata.get_valid_data()
+
+    ## Setup callbacks
+    # tensor_board = keras.callbacks.TensorBoard(
+    #    log_dir='./logs', histogram_freq=0, write_graph=True, write_images=True)
+    cp_path = "ckpt/model-f6-normal-{epoch:02d}-{val_loss:.2f}.h5"
+    check_point = keras.callbacks.ModelCheckpoint(
+        filepath=cp_path, verbose=1, save_weights_only=True, save_best_only=True)
+    early_stop = keras.callbacks.EarlyStopping(
+        monitor='val_loss', min_delta=0, patience=15, verbose=0, mode='auto')
+
+    model.fit_generator(
+        data_gen,
+        samples_per_epoch=epoch_size,
+        nb_epoch=nb_epoch,
+        validation_data=valid_data,
+        nb_val_samples=batch_size,
+        callbacks=[early_stop])
+
+    save_model(model)
+
+
 def main():
     # train1()
     # train2()
-    test_norm_data()
+    train3()
+    # test_norm_data()
     # X_train, y_train = load_data(data_dir="data/record/ktrain1/")
     # model.summary()
-    input("Press a key to continue...")
+    # input("Press a key to continue...")
 
 
 if __name__ == '__main__':
