@@ -198,7 +198,7 @@ def init_model1():
     model.add(Dense(1, init='normal', name="output",
                     activation='tanh'))
 
-    adamOpt = Adam(lr=0.001)
+    adamOpt = Adam(lr=0.0001)
     model.compile(loss='mean_squared_error',
                   optimizer=adamOpt,
                   metrics=['acc'])
@@ -285,16 +285,26 @@ def train3():
     nb_epoch = 1
     gdata = ImageDataGen(
         data_dirs=[
-            'data/record/slow1/',
+            'data/record/50hz/gtrain1/',
+            'data/record/50hz/gtrain2/',
+            'data/record/50hz/gtrain3/',
+            'data/record/50hz/gtrain4/',
+            'data/record/50hz/gtrain5/',
+            # 'data/record/50hz/gtrain1/',
+            # 'data/record/50hz/gtrain2/',
+            # 'data/record/50hz/gtrain3/',
+            # 'data/record/50hz/gtrain4/',
+            # 'data/record/50hz/gtrain5/'],
+            # 'data/record/slow1/',
             'data/record/gtrain1/',
             'data/record/gtrain2/',
-            # 'data/record/gtrain3/',
+            'data/record/gtrain3/',
             'data/train1/',
             'data/train2/',
             'data/train3/'],
         center_image_only=False,
         # angle_adjust= 0.2,
-        train_size=.8,
+        train_size=.95,
         shuffle=True)
     train_num, valid_num = gdata.get_data_sizes()
     print("DataGen train size={0:d} valid size={1:d}".format(
@@ -311,7 +321,7 @@ def train3():
     ## Setup callbacks
     # tensor_board = keras.callbacks.TensorBoard(
     #    log_dir='./logs', histogram_freq=0, write_graph=True, write_images=True)
-    cp_path = "ckpt/model-f6-normal-{epoch:02d}-{val_loss:.2f}.h5"
+    cp_path = "ckpt/model-50-{epoch:02d}-{val_loss:.2f}.h5"
     check_point = keras.callbacks.ModelCheckpoint(
         filepath=cp_path, verbose=1, save_weights_only=True, save_best_only=True)
     early_stop = keras.callbacks.EarlyStopping(
@@ -322,8 +332,8 @@ def train3():
         samples_per_epoch=epoch_size,
         nb_epoch=nb_epoch,
         validation_data=valid_data,
-        nb_val_samples=batch_size,
-        callbacks=[early_stop])
+        nb_val_samples=10,
+        callbacks=[check_point, early_stop])
 
     save_model(model)
 
