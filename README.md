@@ -126,7 +126,7 @@ Next tried incorporated the left and right images. The steering angles were dete
 
 #### Architect
 Reduced Nvidia's End-to-end model:
-
+```
 ____________________________________________________________________________________________________
 Layer (type)                     Output Shape          Param #     Connected to                     
 ====================================================================================================
@@ -170,7 +170,7 @@ output (Dense)                   (None, 1)             21          activation_6[
 ====================================================================================================
 Total params: 241389
 ____________________________________________________________________________________________________
-
+```
 Since the simulator is a simplified real world, reduced the model parameters can save space and time for computation.
 Adds a lambda input layer for normalizing RGB data to range (-1, 1). Used image input size as is for 320x160. Had 2x2 stride in the first two CNN layer to reduce spacial size faster, instead of resize the images, to save footprint.
 Maxim pooling added to the CNN 2 layer for the same purpose. Used stride (1, 1) for CNN 3, 4 layers for keeping small special size but increased depth to 36, and 64 for more features.
