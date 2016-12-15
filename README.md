@@ -1,4 +1,4 @@
-# carnd-p3 (In Progress ...)
+# Carnd-p3: Behavioral Cloning
 Training an testing the driving in simulator.
 
 ## Overview
@@ -114,6 +114,38 @@ The current input data is a recording of roughly one lap of the trail using keyb
 
 * Image isze 320x160 exhausts the GPU memery. Had to resize to 84x32
 
+### Approach 3
+#### Record training data
+Recoreded serveral data sample, test1, test2, test3, train1, train2, and train3. Sample data is a quick run for code debugging purpose. test1, test2, and test3 are for model testing. Train1, train2, and train3 are for model training and validation in 80/20 splite. Data is recorded using keyboard to steering the wheel. The result is not as smooth as wanted.
+#### Training
+Using the default Adam optimizer with learning rate 0.02. Data are loaded using Keras ImageDataGenerator. Only use center images and normalized image to RGB ranging from 0 to 1. Epoch was choosed in 5, 20, 50, 100. Training and validation accuracy were around 0.8, and both losese were 0.02. Test was done by actually running the model in the simulator. The model didn't drive the car very far. It could barely made the first left turn.
+Next tried incorporrated the left and right images. The steering angles were determined by the ceter image angle toward the center image. This augmentation had great impact on driving the car recovering from off positions. The problem was the data size increased in 3 folds and it cannot be fit into the memory at once. Tried to the flow_from_directoy but no easy way to feed the steering angles. It's time to custom made the gererator.
+
+### Approach N
+#### Record more data
+Got a gamepad to smooth out the steering angle. Used the old simulator (50Hz) to record images 5 time faster. Recorded 5 data set for 1 loop drive and data set for 4, 5, and 6 loop drive. Recoded sharp turns at high speed. Recorded shparp truns at low speed.
+#### Data Augmentation
+Only used left and right images. Used to fliped center images left and right, but didn't seem to help.
+
+#### Fine tune the hyper parameters
+Since the accuracy and lose were not helping. need to test the model in the simulator a lot. Used plugged in for early stop and check piont. One epoch has all training set of images. Validation set is 5% and turned off later to save compute time. Usually the first epoch check point test better then the follwing epoch ones in the simulator. The better testing didn't show better accuracy or losses, which is weird and remains mystery.
+
+Tried learing rate of 0.001, 0.005, 0.0001, 0.0005, 0.0001, 0.00001, and 0.000001 in different hyper parameters, and data set and size. The 0.001 had the best performance overall. 
+
+#### Other tools to help
+Used John Chen' Agile Trainer to spot the trouble location in simulator. The Agile Trainer allows you to override the model using the gamepad and move on the to next cource for the model. I reallied in one model I only interfered the model by slowing down the speed and the model can made the turns needed. The Agile Trainner also sugest using a lower learing rate to train the trouble spots for fine tuning.
+
+I was able to record the immage again with high speed on the sharp turns. The result was the model were able to made those turns at lower speed. Therefor, I changed the drive.py throttle from 0.2 to 0.1 for the model to pass the test. 
+
+### Project Summary
+* It's not as strait forward as I were thinking.
+* Data is realy realy important
+* GPU helps a lot
+* Accuracy and loss are not right idication for good train. The actual test in simulation has the final says.
+* Shuffling is import to not over train the certain steering.
+* Lower learning rate is not better than the right one.
+* Driving speed has great impact on the steering.
+* It's realy fun project to understain the CNN training for the real world.
 
 ## References
 ### Models
@@ -133,6 +165,9 @@ The current input data is a recording of roughly one lap of the trail using keyb
 * http://machinelearningmastery.com/image-augmentation-deep-learning-keras/
 * https://blog.keras.io/building-powerful-image-classification-models-using-very-little-data.html
 * https://github.com/fchollet/keras/blob/master/keras/preprocessing/image.py
+
+### Simulation Tools
+* https://github.com/diyjac/AgileTrainer
 
 ## Trouble Shooting
 * https://github.com/aymericdamien/TensorFlow-Examples/issues/38
