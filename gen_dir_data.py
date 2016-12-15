@@ -7,41 +7,56 @@ from keras.preprocessing.image import \
     load_img, \
     img_to_array
 
+IMG_WIDTH = 320
+IMG_HEIGHT = 160
 
 def preprocess_image(img):
     """
+    normalize the image data
+    :param img: The image to be normalized
+    :return: The normalized image
     """
-    # return img/255.
-    return img / 127.5 - 1.
-
+    # return img/255.  # normalize to (0, - 1)
+    return img / 127.5 - 1.  # normalize to (-1, 1)
 
 def load_processed_image(img_path):
+    """
+    :param img_path: The path includes the preprocessing flags like :FLR
+    :return: The loaded and preprocessed image
+    """
     p = img_path.split(':')  # extract the path and flags
     img = img_to_array(load_img(p[0]))
     if len(p) > 1:
         if p[1] == 'FLR':  # fliplr flag
             img = np.fliplr(img)
-    return preprocess_image(img)
+    # Lambda did this: return preprocess_image(img)
+    return img
 
 class ImageDataGen(object):
-    '''
+    """
     Generate image batches when needs to save mem
-    '''
+    """
 
     def __init__(self,
                  data_dirs=["data/sample/"],
-                 # data_size=None,
                  label_only=False,
                  center_image_only=True,
                  fliplr=True,
                  shuffle=True,
                  angle_adjust=0.5,
-                 angle_clip=0.9,
                  train_size=0.8,
                  batch_size=120):
+        """
+        :param data_dirs: A list of directory to load the data
+        :param label_only: Load the label only for debugging and testing
+        :param center_image_only: If True, load the center images only
+        :param fliplr: If True, add left-right fliped images for augmentation
+        :param shuffle: If True, to shuffle the images.
+        :param angle_factor: How much to adjust the left and right steering angle toward the center.
+        """
 
-        self.img_width = 320
-        self.img_height = 160
+        self.img_width = IMG_WIDTH
+        self.img_height = IMG_HEIGHT
         self.img_channels = 3
         self.batch_index = 0
         self.batch_size = batch_size
@@ -54,10 +69,8 @@ class ImageDataGen(object):
         self.y_train_angles = []
         self.x_valid_names = []
         self.y_valid_angles = []
-
         self.csv_name = 'driving_log.csv'
         self.img_dir = 'IMG/'
-        # self.data_size = data_size
         self.data_dirs = data_dirs
         self.label_only = label_only
         self.center_image_only = center_image_only
@@ -112,12 +125,7 @@ class ImageDataGen(object):
                                 center_angle -
                                 abs(center_angle * self.angle_factor))
 
-        if self.shuffle:
-            # shuffle list of angles
-            l = list(zip(self.xnames, self.yangles))
-            random.shuffle(l)
-            self.xnames, self.yangles = zip(*l)
-
+        self.check_and_shuffle_index()
         self.data_num = len(self.xnames)
         self.train_num = int(self.data_num * self.train_size)
         self.valid_num = self.data_num - self.train_num
@@ -127,6 +135,14 @@ class ImageDataGen(object):
         self.y_valid_angles = self.yangles[-self.valid_num:]
         assert self.train_num == len(self.x_train_names), "train size destn't match"
         assert self.valid_num == len(self.x_valid_names), "valid size destn't match"
+
+    def check_and_shuffle_index(self):
+        if self.shuffle:
+            print("\nShuffling index ...")
+            # shuffle list of angles
+            l = list(zip(self.xnames, self.yangles))
+            random.shuffle(l)
+            self.xnames, self.yangles = zip(*l)
 
     def get_train_data(self):
         # X = [preprocess_image(img_to_array(load_img(i))) for i in self.x_train_names]
@@ -149,15 +165,10 @@ class ImageDataGen(object):
             self.batch_size = batch_size
         train_index = 0
         while 1:
-            ##X = np.empty(
-            ##    (self.batch_size,
-            ##     self.img_width,
-            ##     self.img_height,
-            ##     self.img_channels))
             # print("gen_data_from_dir: train_index=", train_index, self.train_num)
             if train_index + self.batch_size > self.train_num:
-                # TODO: Need to re-shuffle?
                 train_index = 0
+                self.check_and_shuffle_index()
             paths = self.x_train_names[train_index: train_index + self.batch_size]
             # X = [preprocess_image(img_to_array(load_img(i))) for i in paths]
             X = [load_processed_image(i) for i in paths]
