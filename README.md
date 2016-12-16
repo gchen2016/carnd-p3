@@ -11,6 +11,7 @@ Training an testing the driving in simulator.
  * drive.py - The script to drive the car.
  * model.json - The model architecture.
  * model.h5 - The model weights.
+ * gen_dir_data.py - The custom image generator
  * READM.md - This file.
  * The saved file structure from simulator training mode is:
 ```
@@ -189,7 +190,11 @@ Tried learning rate of 0.001, 0.005, 0.0001, 0.0005, 0.0001, 0.00001, and 0.0000
 #### Other tools to help
 Used John Chen' Agile Trainer to spot the trouble location in simulator. The Agile Trainer allows you to override the model using the gamepad and move on the to next cource for the model. I reallied in one model I only interfered the model by slowing down the speed and the model can made the turns needed. The Agile Trainner also sugest using a lower learing rate to train the trouble spots for fine tuning.
 
-I was able to record the image again with high speed on the sharp turns. The result was the model were able to made those turns at lower speed. Therefor, I changed the drive.py throttle from 0.2 to 0.1 for the model to pass the test. 
+I was able to record the image again with high speed on the sharp turns. The result was the model were able to made those turns at lower speed. Therefor, I changed the drive.py throttle from 0.2 to 0.1 for the model to pass the test.
+
+### Lesson Learned
+#### How to make sharp turns
+When we make the sharp turns during the recording, we tend to slow down the speed and make the smooth turns with SMALLER angles. Since there is no speed information in the model, the smaller angles learned in the lower speed won't be able to make turns in the testing, which is faster, speed. I was able to record the sharp turns in the same or higher speed, related to the more straight line. The data fed into the model to make those sharp turns. Testing in lower speed, like throttle=0.1, instead of 0.2, in drive.py helps those turns. Then We can fine turn and increase the testing speed if needed.
 
 ### Project Summary
 * It's not as strait forward as I were thinking.
