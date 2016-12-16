@@ -181,7 +181,6 @@ There are 3 fully connected layers with 2 50% dropout layer to prevent overfitti
 Got a game pad to smooth out the steering angle. Used the old simulator (50Hz) to record images 5 time faster. Recorded 5 data set for 1 loop drive and data set for 4, 5, and 6 loop drive. Recoded sharp turns at high speed. Recorded shparp truns at low speed.
 #### Data Augmentation
 Only used left and right images. Used to flipped center images left and right, but didn't seem to help.
-
 #### Fine tune the hyper parameters
 Since the accuracy and lose were not helping. need to test the model in the simulator a lot. Used plugged in for early stop and check piont. One epoch has all training set of images. Validation set is 5% and turned off later to save compute time. Usually the first epoch check point test better then the follwing epoch ones in the simulator. The better testing didn't show better accuracy or losses, which is weird and remains mystery.
 
@@ -195,6 +194,16 @@ I was able to record the image again with high speed on the sharp turns. The res
 ### Lesson Learned
 #### How to make sharp turns
 When we make the sharp turns during the recording, we tend to slow down the speed and make the smooth turns with SMALLER angles. Since there is no speed information in the model, the smaller angles learned in the lower speed won't be able to make turns in the testing, which is faster, speed. I was able to record the sharp turns in the same or higher speed, related to the more straight line. The data fed into the model to make those sharp turns. Testing in lower speed, like throttle=0.1, instead of 0.2, in drive.py helps those turns. Then We can fine turn and increase the testing speed if needed.
+#### Train each image only once
+I have my image generator to produce full length of  the number of images per epoch. I have trained the model with many epochs with check point enabled for each one. The test results in running the simulator tell me that the first epoch mostly yellsthe best result for the training from the scratch. The conclusion are observed over combinations of different set of data, learning rates, augmentations, and hyper parameters. Despite the output of the training accuracy and loss, the first epoch yells the best result over the following ones. 
+
+This leads the mystery for the accuracy and loss, which are not related to the performance of the model at all.
+
+####The Art of Empirical
+All the great theories can give you a jump start to implementation. When we get stuck, we will need to think outside of the box and throw alway those theories one by one with testing. If we are insist on the accuracy or loss without testing the model in the real environments, we would have lost the correct experiments and gone through endless wrong paths.
+
+
+
 
 ### Project Summary
 * It's not as strait forward as I were thinking.
