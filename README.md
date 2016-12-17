@@ -218,7 +218,7 @@ All the great theories can give you a jump start to implementation. When we get 
 Relu is better used for classification. Elu is good for regression, which is this model design for. 
 The outcome is a smoother driving:
 
-[Track 1 learning elu rate 0.001 epoch 1] (https://youtu.be/61FVldNBH5k)
+[Track 1 elu learning rate 0.001 epoch 1] (https://youtu.be/61FVldNBH5k)
 
 #### Training and validation losses vs performance in simulator
 I did train a model with learning rate chaged to 0.0001 for 20 epochs. Validation set at 3000 images for about 5% of the all data. The lowest traing and validation losses were epoch 19, and 20. But the best performance during the testing in the simulator was epoch 9, which had higher training and validation losses!
