@@ -204,6 +204,12 @@ I have my image generator to produce full length of  the number of images per ep
 
 This leads the mystery for the accuracy and loss, which are not related to the performance of the model at all.
 
+#### Make sure data augmentation is sound
+Whe appied left and right images, first I did was add and subtract a contant number from center image angle. After tried serverl nubmers, the perfomance in the simulator did not improved, or getting worse. Then I switched to the current factory formula toward the center, and settle on the fator of 0.75. The perfomance is consitantly good during differnt test.
+
+#### Change only one thing at time
+Left and  right image gave me a lesson for data augmentation: make sure data is "good enough" before and after augmentation. Otherwise it will just give you more headache. :
+
 ####The Art of Empirical
 All the great theories can give you a jump start to implementation. When we get stuck, we will need to think outside of the box and throw alway those theories one by one with testing. If we are insist on the accuracy or loss without testing the model in the real environments, we would have lost the correct experiments and gone through endless wrong paths.
 
