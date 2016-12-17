@@ -202,8 +202,188 @@ This leads the mystery for the accuracy and loss, which are not related to the p
 ####The Art of Empirical
 All the great theories can give you a jump start to implementation. When we get stuck, we will need to think outside of the box and throw alway those theories one by one with testing. If we are insist on the accuracy or loss without testing the model in the real environments, we would have lost the correct experiments and gone through endless wrong paths.
 
+##### Training and validation losses vs performance in simulator
+I did train a model with learning rate chaged to 0.0001 for 20 epochs. Validation set at 3000 images for about 5% of the all data. The lowest traing and validation losses were epoch 19, and 20. But the best performance during the testing in the simulator was epoch 9, which had higher training and validation losses!
+Epoch 20 ran into the right side of the lake in the first left turn. Epoch 1 ran into the left rail of the bridge at the first laps. On the other hand, epoch 9 stayed on the tracks for more than 10 laps and over 15 minutes.
 
+Here is the output of the training:
 
+```
+$ time python3 model_1.py
+Using TensorFlow backend.
+I tensorflow/stream_executor/dso_loader.cc:111] successfully opened CUDA library libcublas.so locally
+I tensorflow/stream_executor/dso_loader.cc:111] successfully opened CUDA library libcudnn.so locally
+I tensorflow/stream_executor/dso_loader.cc:111] successfully opened CUDA library libcufft.so locally
+I tensorflow/stream_executor/dso_loader.cc:111] successfully opened CUDA library libcuda.so.1 locally
+I tensorflow/stream_executor/dso_loader.cc:111] successfully opened CUDA library libcurand.so locally
+Train3: None lr= 0.0001 epochs= 20
+Train3: data_dirs=['data/record/50hz/gfull1/']
+init_model1
+____________________________________________________________________________________________________
+Layer (type)                     Output Shape          Param #     Connected to                     
+====================================================================================================
+lambda_1 (Lambda)                (None, 160, 320, 3)   0           lambda_input_1[0][0]             
+____________________________________________________________________________________________________
+convolution2d_1 (Convolution2D)  (None, 78, 158, 12)   912         lambda_1[0][0]                   
+____________________________________________________________________________________________________
+activation_1 (Activation)        (None, 78, 158, 12)   0           convolution2d_1[0][0]            
+____________________________________________________________________________________________________
+convolution2d_2 (Convolution2D)  (None, 37, 77, 24)    7224        activation_1[0][0]               
+____________________________________________________________________________________________________
+activation_2 (Activation)        (None, 37, 77, 24)    0           convolution2d_2[0][0]            
+____________________________________________________________________________________________________
+maxpooling2d_1 (MaxPooling2D)    (None, 12, 25, 24)    0           activation_2[0][0]               
+____________________________________________________________________________________________________
+convolution2d_3 (Convolution2D)  (None, 10, 23, 36)    7812        maxpooling2d_1[0][0]             
+____________________________________________________________________________________________________
+activation_3 (Activation)        (None, 10, 23, 36)    0           convolution2d_3[0][0]            
+____________________________________________________________________________________________________
+maxpooling2d_2 (MaxPooling2D)    (None, 3, 7, 36)      0           activation_3[0][0]               
+____________________________________________________________________________________________________
+convolution2d_4 (Convolution2D)  (None, 1, 5, 64)      20800       maxpooling2d_2[0][0]             
+____________________________________________________________________________________________________
+activation_4 (Activation)        (None, 1, 5, 64)      0           convolution2d_4[0][0]            
+____________________________________________________________________________________________________
+flatten_1 (Flatten)              (None, 320)           0           activation_4[0][0]               
+____________________________________________________________________________________________________
+dropout_1 (Dropout)              (None, 320)           0           flatten_1[0][0]                  
+____________________________________________________________________________________________________
+hidden2 (Dense)                  (None, 600)           192600      dropout_1[0][0]                  
+____________________________________________________________________________________________________
+activation_5 (Activation)        (None, 600)           0           hidden2[0][0]                    
+____________________________________________________________________________________________________
+dropout_2 (Dropout)              (None, 600)           0           activation_5[0][0]               
+____________________________________________________________________________________________________
+hidden3 (Dense)                  (None, 20)            12020       dropout_2[0][0]                  
+____________________________________________________________________________________________________
+activation_6 (Activation)        (None, 20)            0           hidden3[0][0]                    
+____________________________________________________________________________________________________
+output (Dense)                   (None, 1)             21          activation_6[0][0]               
+====================================================================================================
+Total params: 241389
+____________________________________________________________________________________________________
+
+Shuffling index ...
+DataGen train size=66325 valid size=3491
+Epoch 1/20
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:951] Found device 0 with properties: 
+name: TITAN X (Pascal)
+major: 6 minor: 1 memoryClockRate (GHz) 1.531
+pciBusID 0000:02:00.0
+Total memory: 11.90GiB
+Free memory: 11.26GiB
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:972] DMA: 0 
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:982] 0:   Y 
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:1041] Creating TensorFlow device (/gpu:0) -> (device: 0, name: TITAN X (Pascal), pci bus id: 0000:02:00.0)
+66000/66325 [============================>.] - ETA: 0s - loss: 0.0715 - acc: 0.8619  
+Shuffling index ...
+66200/66325 [============================>.] - ETA: 0s - loss: 0.0714 - acc: 0.8620/usr/local/lib/python3.5/dist-packages/keras/engine/training.py:1470: UserWarning: Epoch comprised more than `samples_per_epoch` samples, which might affect learning results. Set `samples_per_epoch` correctly to avoid this warning.
+  warnings.warn('Epoch comprised more than '
+Epoch 00000: saving model to ckpt/50hz-0.0001-00.h5
+66400/66325 [==============================] - 72s - loss: 0.0714 - acc: 0.8620 - val_loss: 0.0737 - val_acc: 0.8585
+Epoch 2/20
+65800/66325 [============================>.] - ETA: 0s - loss: 0.0633 - acc: 0.8611 
+Shuffling index ...
+66200/66325 [============================>.] - ETA: 0s - loss: 0.0633 - acc: 0.8612Epoch 00001: saving model to ckpt/50hz-0.0001-01.h5
+66400/66325 [==============================] - 69s - loss: 0.0633 - acc: 0.8610 - val_loss: 0.0690 - val_acc: 0.8556
+Epoch 3/20
+65600/66325 [============================>.] - ETA: 0s - loss: 0.0602 - acc: 0.8584 
+Shuffling index ...
+66200/66325 [============================>.] - ETA: 0s - loss: 0.0602 - acc: 0.8584Epoch 00002: saving model to ckpt/50hz-0.0001-02.h5
+66400/66325 [==============================] - 65s - loss: 0.0602 - acc: 0.8583 - val_loss: 0.0665 - val_acc: 0.8502
+Epoch 4/20
+65400/66325 [============================>.] - ETA: 0s - loss: 0.0587 - acc: 0.8565 
+Shuffling index ...
+66200/66325 [============================>.] - ETA: 0s - loss: 0.0587 - acc: 0.8564Epoch 00003: saving model to ckpt/50hz-0.0001-03.h5
+66400/66325 [==============================] - 68s - loss: 0.0588 - acc: 0.8565 - val_loss: 0.0652 - val_acc: 0.8499
+Epoch 5/20
+65200/66325 [============================>.] - ETA: 1s - loss: 0.0572 - acc: 0.8559 
+Shuffling index ...
+66200/66325 [============================>.] - ETA: 0s - loss: 0.0572 - acc: 0.8558Epoch 00004: saving model to ckpt/50hz-0.0001-04.h5
+66400/66325 [==============================] - 68s - loss: 0.0573 - acc: 0.8558 - val_loss: 0.0641 - val_acc: 0.8496
+Epoch 6/20
+65000/66325 [============================>.] - ETA: 1s - loss: 0.0559 - acc: 0.8553 
+Shuffling index ...
+66200/66325 [============================>.] - ETA: 0s - loss: 0.0560 - acc: 0.8552Epoch 00005: saving model to ckpt/50hz-0.0001-05.h5
+66400/66325 [==============================] - 71s - loss: 0.0560 - acc: 0.8552 - val_loss: 0.0632 - val_acc: 0.8499
+Epoch 7/20
+64800/66325 [============================>.] - ETA: 1s - loss: 0.0546 - acc: 0.8554 
+Shuffling index ...
+66200/66325 [============================>.] - ETA: 0s - loss: 0.0548 - acc: 0.8552Epoch 00006: saving model to ckpt/50hz-0.0001-06.h5
+66400/66325 [==============================] - 71s - loss: 0.0547 - acc: 0.8552 - val_loss: 0.0621 - val_acc: 0.8490
+Epoch 8/20
+64600/66325 [============================>.] - ETA: 1s - loss: 0.0536 - acc: 0.8547 
+Shuffling index ...
+66200/66325 [============================>.] - ETA: 0s - loss: 0.0537 - acc: 0.8547Epoch 00007: saving model to ckpt/50hz-0.0001-07.h5
+66400/66325 [==============================] - 71s - loss: 0.0537 - acc: 0.8546 - val_loss: 0.0611 - val_acc: 0.8505
+Epoch 9/20
+64400/66325 [============================>.] - ETA: 1s - loss: 0.0522 - acc: 0.8553 
+Shuffling index ...
+66200/66325 [============================>.] - ETA: 0s - loss: 0.0522 - acc: 0.8553Epoch 00008: saving model to ckpt/50hz-0.0001-08.h5
+66400/66325 [==============================] - 70s - loss: 0.0522 - acc: 0.8551 - val_loss: 0.0601 - val_acc: 0.8505
+Epoch 10/20
+64200/66325 [============================>.] - ETA: 2s - loss: 0.0507 - acc: 0.8553 
+Shuffling index ...
+66200/66325 [============================>.] - ETA: 0s - loss: 0.0507 - acc: 0.8552Epoch 00009: saving model to ckpt/50hz-0.0001-09.h5
+66400/66325 [==============================] - 70s - loss: 0.0508 - acc: 0.8551 - val_loss: 0.0589 - val_acc: 0.8516
+Epoch 11/20
+64000/66325 [===========================>..] - ETA: 2s - loss: 0.0495 - acc: 0.8553 
+Shuffling index ...
+66200/66325 [============================>.] - ETA: 0s - loss: 0.0495 - acc: 0.8551Epoch 00010: saving model to ckpt/50hz-0.0001-10.h5
+66400/66325 [==============================] - 69s - loss: 0.0495 - acc: 0.8552 - val_loss: 0.0580 - val_acc: 0.8516
+Epoch 12/20
+63800/66325 [===========================>..] - ETA: 2s - loss: 0.0483 - acc: 0.8561 
+Shuffling index ...
+66200/66325 [============================>.] - ETA: 0s - loss: 0.0484 - acc: 0.8559Epoch 00011: saving model to ckpt/50hz-0.0001-11.h5
+66400/66325 [==============================] - 68s - loss: 0.0484 - acc: 0.8561 - val_loss: 0.0574 - val_acc: 0.8533
+Epoch 13/20
+63600/66325 [===========================>..] - ETA: 2s - loss: 0.0468 - acc: 0.8564 
+Shuffling index ...
+66200/66325 [============================>.] - ETA: 0s - loss: 0.0468 - acc: 0.8563Epoch 00012: saving model to ckpt/50hz-0.0001-12.h5
+66400/66325 [==============================] - 71s - loss: 0.0468 - acc: 0.8563 - val_loss: 0.0562 - val_acc: 0.8548
+Epoch 14/20
+63400/66325 [===========================>..] - ETA: 3s - loss: 0.0455 - acc: 0.8568 
+Shuffling index ...
+66200/66325 [============================>.] - ETA: 0s - loss: 0.0455 - acc: 0.8568Epoch 00013: saving model to ckpt/50hz-0.0001-13.h5
+66400/66325 [==============================] - 70s - loss: 0.0455 - acc: 0.8567 - val_loss: 0.0549 - val_acc: 0.8545
+Epoch 15/20
+63200/66325 [===========================>..] - ETA: 3s - loss: 0.0444 - acc: 0.8570 
+Shuffling index ...
+66200/66325 [============================>.] - ETA: 0s - loss: 0.0444 - acc: 0.8570Epoch 00014: saving model to ckpt/50hz-0.0001-14.h5
+66400/66325 [==============================] - 70s - loss: 0.0444 - acc: 0.8568 - val_loss: 0.0533 - val_acc: 0.8551
+Epoch 16/20
+63000/66325 [===========================>..] - ETA: 3s - loss: 0.0430 - acc: 0.8580 
+Shuffling index ...
+66200/66325 [============================>.] - ETA: 0s - loss: 0.0431 - acc: 0.8577Epoch 00015: saving model to ckpt/50hz-0.0001-15.h5
+66400/66325 [==============================] - 64s - loss: 0.0430 - acc: 0.8578 - val_loss: 0.0524 - val_acc: 0.8551
+Epoch 17/20
+62800/66325 [===========================>..] - ETA: 3s - loss: 0.0416 - acc: 0.8596 
+Shuffling index ...
+66200/66325 [============================>.] - ETA: 0s - loss: 0.0416 - acc: 0.8593Epoch 00016: saving model to ckpt/50hz-0.0001-16.h5
+66400/66325 [==============================] - 68s - loss: 0.0416 - acc: 0.8594 - val_loss: 0.0519 - val_acc: 0.8531
+Epoch 18/20
+62600/66325 [===========================>..] - ETA: 3s - loss: 0.0408 - acc: 0.8592 
+Shuffling index ...
+66200/66325 [============================>.] - ETA: 0s - loss: 0.0407 - acc: 0.8592Epoch 00017: saving model to ckpt/50hz-0.0001-17.h5
+66400/66325 [==============================] - 72s - loss: 0.0406 - acc: 0.8592 - val_loss: 0.0508 - val_acc: 0.8505
+Epoch 19/20
+62400/66325 [===========================>..] - ETA: 4s - loss: 0.0398 - acc: 0.8602 
+Shuffling index ...
+66200/66325 [============================>.] - ETA: 0s - loss: 0.0398 - acc: 0.8600Epoch 00018: saving model to ckpt/50hz-0.0001-18.h5
+66400/66325 [==============================] - 71s - loss: 0.0397 - acc: 0.8600 - val_loss: 0.0497 - val_acc: 0.8533
+Epoch 20/20
+62200/66325 [===========================>..] - ETA: 4s - loss: 0.0388 - acc: 0.8606 
+Shuffling index ...
+66200/66325 [============================>.] - ETA: 0s - loss: 0.0387 - acc: 0.8606Epoch 00019: saving model to ckpt/50hz-0.0001-19.h5
+66400/66325 [==============================] - 72s - loss: 0.0387 - acc: 0.8606 - val_loss: 0.0499 - val_acc: 0.8545
+
+Model saved to model.json and model.h5
+
+real	23m27.874s
+user	28m14.752s
+sys	2m35.624s
+
+```
 
 ### Project Summary
 * It's not as strait forward as I were thinking.
