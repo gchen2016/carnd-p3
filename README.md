@@ -194,26 +194,33 @@ Used John Chen' Agile Trainer to spot the trouble location in simulator. The Agi
 I was able to record the image again with high speed on the sharp turns. The result was the model were able to made those turns at lower speed. Therefor, I changed the drive.py throttle from 0.2 to 0.1 for the model to pass the test.
 
 ##### Testing in the simlulator from Youtube
-[Track 1 learning rate 0.001 epcho 1] (https://www.youtube.com/watch?v=2ORa0psALqc)
+[Track 1 learning rate 0.001 epoch 1](https://www.youtube.com/watch?v=2ORa0psALqc)
 
 ### Lesson Learned
 #### How to make sharp turns
 When we make the sharp turns during the recording, we tend to slow down the speed and make the smooth turns with SMALLER angles. Since there is no speed information in the model, the smaller angles learned in the lower speed won't be able to make turns in the testing, which is faster, speed. I was able to record the sharp turns in the same or higher speed, related to the more straight line. The data fed into the model to make those sharp turns. Testing in lower speed, like throttle=0.1, instead of 0.2, in drive.py helps those turns. Then We can fine turn and increase the testing speed if needed.
+
 #### Train each image only once
 I have my image generator to produce full length of  the number of images per epoch. I have trained the model with many epochs with check point enabled for each one. The test results in running the simulator tell me that the first epoch mostly yellsthe best result for the training from the scratch. The conclusion are observed over combinations of different set of data, learning rates, augmentations, and hyper parameters. Despite the output of the training accuracy and loss, the first epoch yells the best result over the following ones. 
 
 This leads the mystery for the accuracy and loss, which are not related to the performance of the model at all.
 
 #### Make sure data augmentation is sound
-Whe appied left and right images, first I did was add and subtract a contant number from center image angle. After tried serverl nubmers, the perfomance in the simulator did not improved, or getting worse. Then I switched to the current factory formula toward the center, and settle on the fator of 0.75. The perfomance is consitantly good during differnt test.
+When applyed left and right images, first I did was add and subtract a constant number from center image angle. After tried several numbers, the performance in the simulator did not improved, or getting worse. Then I switched to the current factory formula toward the center, and settle on the factor of 0.75. The performance is consistently good during different test.
 
 #### Change only one thing at time
-Left and  right image gave me a lesson for data augmentation: make sure data is "good enough" before and after augmentation. Otherwise it will just give you more headache. :
+Left and  right image gave me a lesson for data augmentation: make sure data is "good enough" before and after augmentation. Otherwise it will just give you more headache.
 
-####The Art of Empirical
+#### The Art of Empirical
 All the great theories can give you a jump start to implementation. When we get stuck, we will need to think outside of the box and throw alway those theories one by one with testing. If we are insist on the accuracy or loss without testing the model in the real environments, we would have lost the correct experiments and gone through endless wrong paths.
 
-##### Training and validation losses vs performance in simulator
+#### Change only relu layers to elu layers
+Relu is better used for classification. Elu is good for regression, which is this model design for. 
+The outcome is a smoother driving:
+
+[Track 1 learning elu rate 0.001 epoch 1] (https://youtu.be/61FVldNBH5k)
+
+#### Training and validation losses vs performance in simulator
 I did train a model with learning rate chaged to 0.0001 for 20 epochs. Validation set at 3000 images for about 5% of the all data. The lowest traing and validation losses were epoch 19, and 20. But the best performance during the testing in the simulator was epoch 9, which had higher training and validation losses!
 Epoch 20 ran into the right side of the lake in the first left turn. Epoch 1 ran into the left rail of the bridge at the first laps. On the other hand, epoch 9 stayed on the tracks for more than 10 laps and over 15 minutes.
 
@@ -405,6 +412,9 @@ sys	2m35.624s
 * Lower learning rate is not better than the right one.
 * Driving speed has great impact on the steering.
 * It's a fun project to understand the CNN training for the approximated real world.
+
+### More experiemnts
+
 
 ## References
 ### Models
