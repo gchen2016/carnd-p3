@@ -179,8 +179,10 @@ There are 3 fully connected layers with 2 50% dropout layer to prevent overfitti
 
 #### Record more data
 Got a game pad to smooth out the steering angle. Used the old simulator (50Hz) to record images 5 time faster. Recorded 5 data set for 1 loop drive and data set for 4, 5, and 6 loop drive. Recoded sharp turns at high speed. Recorded shparp truns at low speed.
+
 #### Data Augmentation
 Only used left and right images. Used to flipped center images left and right, but didn't seem to help.
+
 #### Fine tune the hyper parameters
 Since the accuracy and lose were not helping. need to test the model in the simulator a lot. Used plugged in for early stop and check piont. One epoch has all training set of images. Validation set is 5% and turned off later to save compute time. Usually the first epoch check point test better then the follwing epoch ones in the simulator. The better testing didn't show better accuracy or losses, which is weird and remains mystery.
 
@@ -190,6 +192,9 @@ Tried learning rate of 0.001, 0.005, 0.0001, 0.0005, 0.0001, 0.00001, and 0.0000
 Used John Chen' Agile Trainer to spot the trouble location in simulator. The Agile Trainer allows you to override the model using the gamepad and move on the to next cource for the model. I reallied in one model I only interfered the model by slowing down the speed and the model can made the turns needed. The Agile Trainner also sugest using a lower learing rate to train the trouble spots for fine tuning.
 
 I was able to record the image again with high speed on the sharp turns. The result was the model were able to made those turns at lower speed. Therefor, I changed the drive.py throttle from 0.2 to 0.1 for the model to pass the test.
+
+##### Testing in the simlulator from Youtube
+[Track 1 learning rate 0.001 epcho 1] (https://www.youtube.com/watch?v=2ORa0psALqc)
 
 ### Lesson Learned
 #### How to make sharp turns
