@@ -221,8 +221,8 @@ The outcome is a smoother driving:
 [Track 1 elu learning rate 0.001 epoch 1] (https://youtu.be/61FVldNBH5k)
 
 #### Training and validation losses vs performance in simulator
-I did train a model with learning rate chaged to 0.0001 for 20 epochs. Validation set at 3000 images for about 5% of the all data. The lowest traing and validation losses were epoch 19, and 20. But the best performance during the testing in the simulator was epoch 9, which had higher training and validation losses!
-Epoch 20 ran into the right side of the lake in the first left turn. Epoch 1 ran into the left rail of the bridge at the first laps. On the other hand, epoch 9 stayed on the tracks for more than 10 laps and over 15 minutes.
+I did train a model with learning rate chaged to 0.0001 for 20 epochs. Validation set at 3000 images for about 5% of the all data. The lowest traing and validation losses were epoch 19, and 20. But the best performance during the testing in the simulator was epoch 11, which had higher training and validation losses!
+Epoch 1, 20 and few others ran out of the track at the first lap. On the other hand, epoch 11 stayed on the tracks for a while until I stopped it.
 
 Here is the output of the training:
 
@@ -402,6 +402,10 @@ user	28m14.752s
 sys	2m35.624s
 
 ```
+##### Testing 20 epochs in the simlulator from Youtube
+[Track 1 learning rate 0.0001 elu validation 3000 epoch 11](https://www.youtube.com/watch?v=rdDyUPC34Kg)
+[Track 1 learning rate 0.0001 elu validation 3000 epoch 20](https://www.youtube.com/watch?v=m8AbJNmw9H0)
+(All 20 epochs are uploaded to Youtube)
 
 ### Project Summary
 * It's not as strait forward as I were thinking.
