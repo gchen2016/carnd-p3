@@ -402,11 +402,19 @@ user	28m14.752s
 sys	2m35.624s
 
 ```
+![Plot](/img/leak-validation.png)
 ##### Testing 20 epochs in the simlulator from Youtube
 * [Track 1 learning rate 0.0001 elu validation 3000 epoch 11](https://www.youtube.com/watch?v=rdDyUPC34Kg)
 * [Track 1 learning rate 0.0001 elu validation 3000 epoch 20](https://www.youtube.com/watch?v=m8AbJNmw9H0)
 
 (All 20 epochs are uploaded to Youtube)
+
+##### What's the problem here???
+The validation loss should indicate the best performance in the track, but it didn't. Thanks to My mentor Gilad Gressel, he worked with me timelessly to figure out what went wrong. It turned out that there is a bug in my validation sampling: the validation set was mixed / leaked into the next epoch! That caused the validation loss looks like the training loss!
+To fix that, I re-implemented the gen_dir_data.py to fix the shuffling funtion to avoid the leaking, and save the file to gen_dir_data_1.py.
+The result from the none-leaking validation is making sense now. After training with 20 epochs, the validation loss is dipped at the beginning and then keep increasing, which training loss keeps decreasing. The validation loss now has good indication on how each epoch performs. The lowest validation at epochs 3 - 9 perform very well on the track, while epochs 19 and 20 do not.
+
+![Plot](/img/none-leak-validation.png)
 
 ### Project Summary
 * It's not as strait forward as I were thinking.
