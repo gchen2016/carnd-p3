@@ -402,6 +402,7 @@ user	28m14.752s
 sys	2m35.624s
 
 ```
+![Plot](/img/leak-validation.png)
 ##### Testing 20 epochs in the simlulator from Youtube
 * [Track 1 learning rate 0.0001 elu validation 3000 epoch 11](https://www.youtube.com/watch?v=rdDyUPC34Kg)
 * [Track 1 learning rate 0.0001 elu validation 3000 epoch 20](https://www.youtube.com/watch?v=m8AbJNmw9H0)
